@@ -13,7 +13,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FonTech.Api", "FonTech.Api\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FonTech.Domain", "FonTech.Domain\FonTech.Domain.csproj", "{7578C220-67DB-491B-9EAA-A002A6DFBC29}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FonTech.DAL", "FonTech.DAL\FonTech.DAL.csproj", "{328D317D-8916-4030-BD8A-F550F5D50070}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FonTech.DAL", "FonTech.DAL\FonTech.DAL.csproj", "{328D317D-8916-4030-BD8A-F550F5D50070}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FonTech.Application", "FonTech.Application\FonTech.Application.csproj", "{E0467DE9-8617-44CD-938F-A17DC8717955}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{328D317D-8916-4030-BD8A-F550F5D50070}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{328D317D-8916-4030-BD8A-F550F5D50070}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{328D317D-8916-4030-BD8A-F550F5D50070}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E0467DE9-8617-44CD-938F-A17DC8717955}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E0467DE9-8617-44CD-938F-A17DC8717955}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E0467DE9-8617-44CD-938F-A17DC8717955}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E0467DE9-8617-44CD-938F-A17DC8717955}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -41,6 +47,7 @@ Global
 		{67871946-75A8-4923-B62C-4E3D3859F9E4} = {AC9AD9AA-9ECF-490E-B990-370A690CE86C}
 		{7578C220-67DB-491B-9EAA-A002A6DFBC29} = {7A0032BA-5511-425B-ACA3-1CBD427B6ECC}
 		{328D317D-8916-4030-BD8A-F550F5D50070} = {2BDF51A7-9921-4E69-8632-9B07B6FD7B31}
+		{E0467DE9-8617-44CD-938F-A17DC8717955} = {7A0032BA-5511-425B-ACA3-1CBD427B6ECC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2B7D3C42-9B9D-45C1-B6BE-293706E886AA}
