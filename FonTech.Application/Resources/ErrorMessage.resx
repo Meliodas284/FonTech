@@ -121,8 +121,20 @@
     <value>Internal server error</value>
     <comment>Internal server error</comment>
   </data>
+  <data name="ReportAlreadyExist" xml:space="preserve">
+    <value>Report is already exist</value>
+    <comment>Report is already exist</comment>
+  </data>
+  <data name="ReportNotFound" xml:space="preserve">
+    <value>Report is not found by Id </value>
+    <comment>Report is not found by Id</comment>
+  </data>
   <data name="ReportsNotFound" xml:space="preserve">
     <value>Reports not found</value>
     <comment>Reports not found</comment>
+  </data>
+  <data name="UserNotFound" xml:space="preserve">
+    <value>User is not found</value>
+    <comment>User is not found</comment>
   </data>
 </root>

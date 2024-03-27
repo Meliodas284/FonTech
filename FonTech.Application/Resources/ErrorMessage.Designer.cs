@@ -70,11 +70,38 @@ namespace FonTech.Application.Resources {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Report is already exist.
+        /// </summary>
+        internal static string ReportAlreadyExist {
+            get {
+                return ResourceManager.GetString("ReportAlreadyExist", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Report is not found by Id .
+        /// </summary>
+        internal static string ReportNotFound {
+            get {
+                return ResourceManager.GetString("ReportNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Reports not found.
         /// </summary>
         internal static string ReportsNotFound {
             get {
                 return ResourceManager.GetString("ReportsNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на User is not found.
+        /// </summary>
+        internal static string UserNotFound {
+            get {
+                return ResourceManager.GetString("UserNotFound", resourceCulture);
             }
         }
     }
