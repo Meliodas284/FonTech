@@ -16,11 +16,11 @@ public static class DependencyInjection
 	{
 		services.AddSingleton<DateInterceptor>();
 
-		var connectionString = configuration.GetConnectionString("MSSQL");
+		var connectionString = configuration.GetConnectionString("PostgresSQL");
 
 		services.AddDbContext<ApplicationDbContext>(options =>
 		{
-			options.UseSqlServer(connectionString);
+			options.UseNpgsql(connectionString);
 		});
 
 		services.InitRepositories();

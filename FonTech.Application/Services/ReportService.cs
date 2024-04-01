@@ -78,12 +78,11 @@ public class ReportService : IReportService
 	/// <inheritdoc />
 	public async Task<BaseResult<ReportDto>> GetReportByIdAsync(long reportId)
 	{
-        ReportDto? report;
+        Report? report;
 
         try
         {
             report = await _reportRepository.GetAll()
-                .Select(x => new ReportDto(x.Id, x.Name, x.Description, x.CreatedAt.ToLongDateString()))
 				.FirstOrDefaultAsync(x => x.Id == reportId);
 
 		}
@@ -98,21 +97,27 @@ public class ReportService : IReportService
 			};
 		}
 
-        if (report == null)
-        {
-            _logger.Warning("Отчет с {reportId} не найден", reportId);
+		var result = _reportValidator.ValidateOnNull(report);
+		if (!result.IsSuccess)
+		{
+			_logger.Warning("Отчет с ID = {reportId} не найден", reportId);
 
 			return new BaseResult<ReportDto>
 			{
-				ErrorMessage = ErrorMessage.ReportNotFound,
-				ErrorCode = (int)ErrorCodes.ReportNotFound
+				ErrorMessage = result.ErrorMessage,
+				ErrorCode = result.ErrorCode
 			};
 		}
 
+
         return new BaseResult<ReportDto>
         {
-            Data = report
-        };
+            Data = new ReportDto(
+				report!.Id,
+				report.Name, 
+				report.Description, 
+				report.CreatedAt.ToLongDateString())
+		};
 	}
 
 	/// <inheritdoc/>
