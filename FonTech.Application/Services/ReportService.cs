@@ -37,13 +37,12 @@ public class ReportService : IReportService
 	/// <inheritdoc />
 	public async Task<CollectionResult<ReportDto>> GetReportsAsync(long userId)
 	{
-        ReportDto[] reports;
+        Report[] reports;
 
         try
         {
             reports = await _reportRepository.GetAll()
                 .Where(x => x.UserId == userId)
-                .Select(x => new ReportDto(x.Id, x.Name, x.Description, x.CreatedAt.ToLongDateString()))
 				.ToArrayAsync();
 
 		}
@@ -70,7 +69,8 @@ public class ReportService : IReportService
 
         return new CollectionResult<ReportDto>
         {
-            Data = reports,
+            Data = reports
+				.Select(x => _mapper.Map<ReportDto>(x)),
             Count = reports.Length
         };
 	}
@@ -112,11 +112,7 @@ public class ReportService : IReportService
 
         return new BaseResult<ReportDto>
         {
-            Data = new ReportDto(
-				report!.Id,
-				report.Name, 
-				report.Description, 
-				report.CreatedAt.ToLongDateString())
+            Data = _mapper.Map<ReportDto>(report)
 		};
 	}
 
@@ -180,6 +176,8 @@ public class ReportService : IReportService
             var result = _reportValidator.ValidateOnNull(report);
 			if (!result.IsSuccess)
 			{
+				_logger.Warning("Отчет с ID = {id} не найден", id);
+
 				return new BaseResult<ReportDto>
 				{
 					ErrorMessage = result.ErrorMessage,
@@ -218,6 +216,8 @@ public class ReportService : IReportService
 			var result = _reportValidator.ValidateOnNull(report);
 			if (!result.IsSuccess)
 			{
+				_logger.Warning("Отчет с ID = {id} не найден", dto.id);
+
 				return new BaseResult<ReportDto>
 				{
 					ErrorMessage = result.ErrorMessage,
