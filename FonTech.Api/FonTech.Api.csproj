@@ -7,9 +7,11 @@
     <InvariantGlobalization>true</InvariantGlobalization>
     <UserSecretsId>4b06c906-7e36-4259-bf26-4c784e76be66</UserSecretsId>
     <DockerDefaultTargetOS>Windows</DockerDefaultTargetOS>
+	  <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.1.0" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.6" />
     <PackageReference Include="Serilog.AspNetCore" Version="8.0.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
