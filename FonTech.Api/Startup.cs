@@ -1,11 +1,50 @@
 ﻿using Asp.Versioning;
+using FonTech.Domain.Settings;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
+using System.Text;
 
 namespace FonTech.Api;
 
 public static class Startup
 {
+	/// <summary>
+	/// Подключение аутентификации и авторизации
+	/// </summary>
+	/// <param name="services"></param>
+	/// <param name="builder"></param>
+	public static void AddAuthenticationAndAuthorization(this IServiceCollection services, WebApplicationBuilder builder)
+	{		
+		services.AddAuthorization();
+		services.AddAuthentication(options =>
+		{
+			options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+			options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+			options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+		}).AddJwtBearer(options =>
+		{
+			var jwtSettings = builder.Configuration.GetSection(JwtSettings.DefaultJwtSection).Get<JwtSettings>();
+			var issuer = jwtSettings.Issuer;
+			var audience = jwtSettings.Audience;
+			var key = jwtSettings.JwtKey;
+
+			options.Authority = jwtSettings.Authority;
+			options.RequireHttpsMetadata = false;
+			options.TokenValidationParameters = new TokenValidationParameters()
+			{
+				ValidIssuer = issuer,
+				ValidAudience = audience,
+				IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
+				ValidateIssuer = true,
+				ValidateAudience = true,
+				ValidateLifetime = true,
+				ValidateIssuerSigningKey = true
+			};
+		});
+	}
+	
 	/// <summary>
 	/// Подключение Swagger
 	/// </summary>

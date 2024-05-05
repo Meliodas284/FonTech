@@ -26,5 +26,7 @@ public static class DependencyInjection
 		services.AddScoped<IReportValidator, ReportValidator>();
 		
 		services.AddScoped<IReportService, ReportService>();
+		services.AddScoped<IAuthService, AuthService>();
+		services.AddScoped<ITokenService, TokenService>();
 	}
 }

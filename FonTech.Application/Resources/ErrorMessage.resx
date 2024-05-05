@@ -121,6 +121,10 @@
     <value>Internal server error</value>
     <comment>Internal server error</comment>
   </data>
+  <data name="PasswordNotEquals" xml:space="preserve">
+    <value>Password isn`t equals to confirm password</value>
+    <comment>Password isn`t equals to confirm password</comment>
+  </data>
   <data name="ReportAlreadyExist" xml:space="preserve">
     <value>Report is already exist</value>
     <comment>Report is already exist</comment>
@@ -133,8 +137,16 @@
     <value>Reports not found</value>
     <comment>Reports not found</comment>
   </data>
+  <data name="UserAlreadyExists" xml:space="preserve">
+    <value>User with this login is already exists</value>
+    <comment>User with this login is already exists</comment>
+  </data>
   <data name="UserNotFound" xml:space="preserve">
     <value>User is not found</value>
     <comment>User is not found</comment>
+  </data>
+  <data name="WrongPassword" xml:space="preserve">
+    <value>You added wrong password!</value>
+    <comment>You added wrong password!</comment>
   </data>
 </root>
