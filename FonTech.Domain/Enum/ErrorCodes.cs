@@ -12,6 +12,7 @@ public enum ErrorCodes
 
 	PasswordNotEquals = 21,
 	WrongPassword = 22,
+	InvalidClientRequest = 23,
 
 
 	InternalServerError = 10

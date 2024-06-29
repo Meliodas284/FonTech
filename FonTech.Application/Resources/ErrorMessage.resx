@@ -121,6 +121,14 @@
     <value>Internal server error</value>
     <comment>Internal server error</comment>
   </data>
+  <data name="InvalidClientRequest" xml:space="preserve">
+    <value>Invalid client request!</value>
+    <comment>Invalid client request!</comment>
+  </data>
+  <data name="InvalidToken" xml:space="preserve">
+    <value>This token isn`t valid!</value>
+    <comment>This token isn`t valid!</comment>
+  </data>
   <data name="PasswordNotEquals" xml:space="preserve">
     <value>Password isn`t equals to confirm password</value>
     <comment>Password isn`t equals to confirm password</comment>

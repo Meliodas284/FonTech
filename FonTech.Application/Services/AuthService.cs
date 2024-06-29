@@ -89,6 +89,8 @@ public class AuthService : IAuthService
 			{
 				userToken.RefreshToken = refreshToken;
 				userToken.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
+
+				await _userTokenRepository.UpdateAsync(userToken);
 			}
 
 			return new BaseResult<TokenDto>()
@@ -169,7 +171,7 @@ public class AuthService : IAuthService
 	{
 		var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(password));
 
-		return BitConverter.ToString(bytes).ToLower();
+		return Convert.ToBase64String(bytes);
 	}
 
 	private bool IsVerifiedPassword(string userPassword, string userPasswordHash)

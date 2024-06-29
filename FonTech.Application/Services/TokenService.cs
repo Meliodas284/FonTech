@@ -1,5 +1,12 @@
-﻿using FonTech.Domain.Interfaces.Services;
+﻿using FonTech.Application.Resources;
+using FonTech.Domain.Dto;
+using FonTech.Domain.Entity;
+using FonTech.Domain.Enum;
+using FonTech.Domain.Interfaces.Repositories;
+using FonTech.Domain.Interfaces.Services;
+using FonTech.Domain.Result;
 using FonTech.Domain.Settings;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -12,10 +19,12 @@ namespace FonTech.Application.Services;
 public class TokenService : ITokenService
 {
 	private readonly JwtSettings _jwtSettings;
+	private readonly IBaseRepository<User> _userRepository;
 
-    public TokenService(IOptions<JwtSettings> jwtSettings)
+    public TokenService(IOptions<JwtSettings> jwtSettings, IBaseRepository<User> userRepository)
     {
 		_jwtSettings = jwtSettings.Value;
+		_userRepository = userRepository;
     }
 
     public string GenerateAccessToken(IEnumerable<Claim> claims)
@@ -41,5 +50,62 @@ public class TokenService : ITokenService
 		randomNumberGenerator.GetBytes(randomNumbers);
 
 		return Convert.ToBase64String(randomNumbers);
+	}
+
+	public ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
+	{
+		var tokenValidationParameters = new TokenValidationParameters()
+		{
+			ValidateAudience = true,
+			ValidateIssuer = true,
+			ValidateLifetime = true,
+			ValidateIssuerSigningKey = true,
+			IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.JwtKey)),
+			ValidAudience = _jwtSettings.Audience,
+			ValidIssuer = _jwtSettings.Issuer
+		};
+		
+		var tokenHandler = new JwtSecurityTokenHandler();
+		var claimsPrincipal = tokenHandler.ValidateToken(token, tokenValidationParameters, out SecurityToken securityToken);
+		if (securityToken is not JwtSecurityToken jwtSecurityToken || 
+			!jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+		{
+			throw new SecurityTokenException(ErrorMessage.InvalidToken);
+		}
+
+		return claimsPrincipal;
+	}
+
+	public async Task<BaseResult<TokenDto>> RefreshToken(TokenDto dto)
+	{
+		var claimsPrincipal = GetPrincipalFromExpiredToken(dto.AccessToken);
+		var userName = claimsPrincipal.Identity!.Name;
+		var user = await _userRepository.GetAll()
+			.Include(x => x.UserToken)
+			.FirstOrDefaultAsync(x => x.Login == userName);
+
+		if (user == null || user.UserToken.RefreshToken != dto.RefreshToken ||
+			user.UserToken.RefreshTokenExpiryTime <= DateTime.UtcNow)
+		{
+			return new BaseResult<TokenDto>()
+			{
+				ErrorMessage = ErrorMessage.InvalidClientRequest,
+				ErrorCode = (int)ErrorCodes.InvalidClientRequest
+			};
+		}
+
+		var newAccessToken = GenerateAccessToken(claimsPrincipal.Claims);
+		var newRefreshToken = GenerateRefreshToken();
+		user.UserToken.RefreshToken = newRefreshToken;
+		await _userRepository.UpdateAsync(user);
+
+		return new BaseResult<TokenDto>()
+		{
+			Data = new TokenDto
+			{
+				AccessToken = newAccessToken,
+				RefreshToken = newRefreshToken
+			}
+		};
 	}
 }
