@@ -25,7 +25,12 @@ public class ExceptionHandlingMiddleware
         _logger = logger;
     }
 
-    public async Task InvokeAsync(HttpContext context)
+	/// <summary>
+	/// Вызывает следующий middleware и обрабатывает исключения, если они возникают
+	/// </summary>
+	/// <param name="context"></param>
+	/// <returns></returns>
+	public async Task InvokeAsync(HttpContext context)
     {
         try
         {
@@ -37,7 +42,13 @@ public class ExceptionHandlingMiddleware
         }
     }
 
-    private async Task HandleExceptionAsync(HttpContext context, Exception exception)
+	/// <summary>
+	/// Обрабатывает исключение
+	/// </summary>
+	/// <param name="context"></param>
+	/// <param name="exception"></param>
+	/// <returns></returns>
+	private async Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
         _logger.Error(exception, exception.Message);
 
