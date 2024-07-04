@@ -14,6 +14,10 @@ public enum ErrorCodes
 	WrongPassword = 22,
 	InvalidClientRequest = 23,
 
+	RolesNotFound = 31,
+	RoleNotFound = 32,
+	RoleAlreadyExists = 33,
+
 
 	InternalServerError = 10
 }

@@ -142,6 +142,15 @@ namespace FonTech.Application.Resources {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Roles not found.
+        /// </summary>
+        internal static string RolesNotFound {
+            get {
+                return ResourceManager.GetString("RolesNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на User with this login is already exists.
         /// </summary>
         internal static string UserAlreadyExists {

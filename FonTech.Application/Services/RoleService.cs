@@ -1,7 +1,7 @@
 ﻿using FonTech.Application.Resources;
 using FonTech.Domain.Dto.Role;
 using FonTech.Domain.Entity;
-using FonTech.Domain.Exceptions;
+using FonTech.Domain.Enum;
 using FonTech.Domain.Interfaces.Repositories;
 using FonTech.Domain.Interfaces.Services;
 using FonTech.Domain.Result;
@@ -22,14 +22,19 @@ public class RoleService : IRoleService
 		_userRepository = userRepository;
     }
 
-    public async Task<BaseResult<Role>> CreateRoleAsync(RoleDto dto)
+	/// <inheritdoc />
+	public async Task<BaseResult<Role>> CreateRoleAsync(RoleDto dto)
 	{
 		var role = await _roleRepository.GetAll()
 			.FirstOrDefaultAsync(x => x.Name == dto.Name);
 
 		if (role != null)
 		{
-			throw new RoleAlreadyExistsException(ErrorMessage.RoleAlreadyExists);
+			return new BaseResult<Role>
+			{
+				ErrorCode = (int)ErrorCodes.RoleAlreadyExists,
+				ErrorMessage = ErrorMessage.RoleAlreadyExists
+			};
 		}
 
 		role = new Role
@@ -45,13 +50,18 @@ public class RoleService : IRoleService
 		};
 	}
 
+	/// <inheritdoc />
 	public async Task<BaseResult<Role>> DeleteRoleAsync(long id)
 	{
 		var role = await _roleRepository.GetAll().FirstOrDefaultAsync(x => x.Id == id);
 
 		if (role == null)
 		{
-			throw new RolesNotFoundException(ErrorMessage.RoleNotFound);
+			return new BaseResult<Role>
+			{
+				ErrorCode = (int)ErrorCodes.RoleNotFound,
+				ErrorMessage = ErrorMessage.RoleNotFound
+			};
 		}
 
 		await _roleRepository.DeleteAsync(role);
@@ -62,13 +72,18 @@ public class RoleService : IRoleService
 		};
 	}
 
+	/// <inheritdoc />
 	public async Task<BaseResult<Role>> GetRoleByIdAsync(long id)
 	{
 		var role = await _roleRepository.GetAll().FirstOrDefaultAsync(x => x.Id == id);
 
 		if (role == null)
 		{
-			throw new RolesNotFoundException(ErrorMessage.RoleNotFound);
+			return new BaseResult<Role>
+			{
+				ErrorCode = (int)ErrorCodes.RoleNotFound,
+				ErrorMessage = ErrorMessage.RoleNotFound
+			};
 		}
 
 		return new BaseResult<Role>
@@ -77,13 +92,18 @@ public class RoleService : IRoleService
 		};
 	}
 
+	/// <inheritdoc />
 	public async Task<CollectionResult<Role>> GetRolesAsync()
 	{
 		var roles = await _roleRepository.GetAll().ToListAsync();
 
 		if (!roles.Any())
 		{
-			throw new RolesNotFoundException(ErrorMessage.RoleNotFound);
+			return new CollectionResult<Role>
+			{
+				ErrorCode = (int)ErrorCodes.RolesNotFound,
+				ErrorMessage = ErrorMessage.RolesNotFound
+			};
 		}
 
 		return new CollectionResult<Role>() 
@@ -92,6 +112,7 @@ public class RoleService : IRoleService
 		};
 	}
 
+	/// <inheritdoc />
 	public async Task<CollectionResult<Role>> GetUserRolesAsync(long userId)
 	{
 		var user = await _userRepository
@@ -101,12 +122,20 @@ public class RoleService : IRoleService
 
 		if (user == null)
 		{
-			throw new UserNotFoundException(ErrorMessage.UserNotFound);
+			return new CollectionResult<Role>
+			{
+				ErrorCode = (int)ErrorCodes.UserNotFound,
+				ErrorMessage = ErrorMessage.UserNotFound
+			};
 		}
 
 		if (!user.Roles.Any())
 		{
-			throw new RolesNotFoundException(ErrorMessage.RoleNotFound);
+			return new CollectionResult<Role>
+			{
+				ErrorCode = (int)ErrorCodes.RolesNotFound,
+				ErrorMessage = ErrorMessage.RolesNotFound
+			};
 		}
 
 		return new CollectionResult<Role>
@@ -115,13 +144,18 @@ public class RoleService : IRoleService
 		};
 	}
 
+	/// <inheritdoc />
 	public async Task<BaseResult<Role>> UpdateRoleAsync(UpdateRoleDto dto)
 	{
 		var role = await _roleRepository.GetAll().FirstOrDefaultAsync(x => x.Id == dto.Id);
 
 		if (role == null)
 		{
-			throw new RolesNotFoundException(ErrorMessage.RoleNotFound);
+			return new BaseResult<Role>
+			{
+				ErrorCode = (int)ErrorCodes.RoleNotFound,
+				ErrorMessage = ErrorMessage.RoleNotFound
+			};
 		}
 
 		role.Name = dto.Name;
