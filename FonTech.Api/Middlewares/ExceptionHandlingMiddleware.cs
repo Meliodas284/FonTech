@@ -68,7 +68,9 @@ public class ExceptionHandlingMiddleware
             PasswordNotEqualsException _ => (int)HttpStatusCode.Unauthorized,
             InvalidClientRequestException _ => (int)HttpStatusCode.BadRequest,
             SecurityTokenException _ => (int)HttpStatusCode.Unauthorized,
-            _ => (int)HttpStatusCode.InternalServerError
+            RolesNotFoundException _ => (int)HttpStatusCode.NotFound,
+            RoleAlreadyExistsException _ => (int)HttpStatusCode.BadRequest,
+			_ => (int)HttpStatusCode.InternalServerError
         };
 
         context.Response.StatusCode = (int)response.ErrorCode;

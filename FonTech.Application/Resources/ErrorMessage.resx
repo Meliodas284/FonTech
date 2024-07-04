@@ -145,6 +145,14 @@
     <value>Reports not found</value>
     <comment>Reports not found</comment>
   </data>
+  <data name="RoleAlreadyExists" xml:space="preserve">
+    <value>Role already exists</value>
+    <comment>Role already exists</comment>
+  </data>
+  <data name="RoleNotFound" xml:space="preserve">
+    <value>Roles not found</value>
+    <comment>Roles not found</comment>
+  </data>
   <data name="UserAlreadyExists" xml:space="preserve">
     <value>User with this login is already exists</value>
     <comment>User with this login is already exists</comment>
