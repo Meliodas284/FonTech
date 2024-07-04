@@ -29,8 +29,8 @@ public class ReportValidator : IReportValidator
 		{
 			return new BaseResult
 			{
-				ErrorMessage = ErrorMessage.ReportAlreadyExist,
-				ErrorCode = (int)ErrorCodes.ReportAlreadyExist
+				ErrorMessage = ErrorMessage.ReportAlreadyExists,
+				ErrorCode = (int)ErrorCodes.ReportAlreadyExists
 			};
 		}
 

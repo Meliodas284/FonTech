@@ -4,7 +4,6 @@ using FonTech.Domain.Dto;
 using FonTech.Domain.Dto.User;
 using FonTech.Domain.Entity;
 using FonTech.Domain.Enum;
-using FonTech.Domain.Exceptions;
 using FonTech.Domain.Interfaces.Repositories;
 using FonTech.Domain.Interfaces.Services;
 using FonTech.Domain.Result;
@@ -46,12 +45,20 @@ public class AuthService : IAuthService
 
 		if (user == null)
 		{
-			throw new UserNotFoundException(ErrorMessage.UserNotFound);
+			return new BaseResult<TokenDto>
+			{
+				ErrorCode = (int)ErrorCodes.UserNotFound,
+				ErrorMessage = ErrorMessage.UserNotFound
+			};
 		}
 
 		if (!IsVerifiedPassword(dto.Password, user.Password))
 		{
-			throw new WrongPasswordException(ErrorMessage.WrongPassword);
+			return new BaseResult<TokenDto>
+			{
+				ErrorCode = (int)ErrorCodes.WrongPassword,
+				ErrorMessage = ErrorMessage.WrongPassword
+			};
 		}
 
 		var userToken = await _userTokenRepository.GetAll()
@@ -99,7 +106,11 @@ public class AuthService : IAuthService
 	{
 		if (dto.Password != dto.PasswordConfirm)
 		{
-			throw new PasswordNotEqualsException(ErrorMessage.PasswordNotEquals);
+			return new BaseResult<UserDto>
+			{
+				ErrorCode = (int)ErrorCodes.PasswordNotEquals,
+				ErrorMessage = ErrorMessage.PasswordNotEquals
+			};
 		}
 
 		var user = await _userRepository.GetAll()
@@ -107,7 +118,11 @@ public class AuthService : IAuthService
 
 		if (user != null)
 		{
-			throw new UserAlreadyExistsException(ErrorMessage.UserAlreadyExists);
+			return new BaseResult<UserDto>
+			{
+				ErrorCode = (int)ErrorCodes.UserAlreadyExists,
+				ErrorMessage = ErrorMessage.UserAlreadyExists
+			};
 		}
 
 		var hashPassword = HashPassword(dto.Password);

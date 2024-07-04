@@ -1,7 +1,7 @@
 ﻿using FonTech.Application.Resources;
 using FonTech.Domain.Dto;
 using FonTech.Domain.Entity;
-using FonTech.Domain.Exceptions;
+using FonTech.Domain.Enum;
 using FonTech.Domain.Interfaces.Repositories;
 using FonTech.Domain.Interfaces.Services;
 using FonTech.Domain.Result;
@@ -87,7 +87,11 @@ public class TokenService : ITokenService
 		if (user == null || user.UserToken.RefreshToken != dto.RefreshToken ||
 			user.UserToken.RefreshTokenExpiryTime <= DateTime.UtcNow)
 		{
-			throw new InvalidClientRequestException(ErrorMessage.InvalidClientRequest);
+			return new BaseResult<TokenDto>
+			{
+				ErrorCode = (int)ErrorCodes.InvalidClientRequest,
+				ErrorMessage = ErrorMessage.InvalidClientRequest
+			};
 		}
 
 		var newAccessToken = GenerateAccessToken(claimsPrincipal.Claims);

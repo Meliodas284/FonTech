@@ -133,9 +133,9 @@
     <value>Password isn`t equals to confirm password</value>
     <comment>Password isn`t equals to confirm password</comment>
   </data>
-  <data name="ReportAlreadyExist" xml:space="preserve">
-    <value>Report is already exist</value>
-    <comment>Report is already exist</comment>
+  <data name="ReportAlreadyExists" xml:space="preserve">
+    <value>Report is already exists</value>
+    <comment>Report is already exists</comment>
   </data>
   <data name="ReportNotFound" xml:space="preserve">
     <value>Report is not found by Id </value>
