@@ -2,7 +2,7 @@
 using FonTech.Application.Resources;
 using FonTech.Domain.Dto.Report;
 using FonTech.Domain.Entity;
-using FonTech.Domain.Exceptions;
+using FonTech.Domain.Enum;
 using FonTech.Domain.Interfaces.Repositories;
 using FonTech.Domain.Interfaces.Services;
 using FonTech.Domain.Interfaces.Validators;
@@ -45,7 +45,11 @@ public class ReportService : IReportService
 
 		if (!reports.Any())
         {
-			throw new ReportsNotFoundException(ErrorMessage.ReportsNotFound);
+			return new CollectionResult<ReportDto>
+			{
+				ErrorCode = (int)ErrorCodes.ReportsNotFound,
+				ErrorMessage = ErrorMessage.ReportsNotFound
+			};
 		}
 
         return new CollectionResult<ReportDto>
@@ -67,7 +71,11 @@ public class ReportService : IReportService
 		var result = _reportValidator.ValidateOnNull(report);
 		if (!result.IsSuccess)
 		{
-			throw new ReportNotFoundException(result.ErrorMessage);
+			return new BaseResult<ReportDto>
+			{
+				ErrorCode = result.ErrorCode,
+				ErrorMessage = result.ErrorMessage
+			};
 		}
 
         return new BaseResult<ReportDto>
@@ -82,17 +90,17 @@ public class ReportService : IReportService
 		var user = await _userRepository.GetAll()
 				.FirstOrDefaultAsync(x => x.Id == dto.userId);
 
-		if (user == null)
-		{
-			throw new UserNotFoundException(ErrorMessage.UserNotFound);
-		}
-
 		var report = await _reportRepository.GetAll()
 			.FirstOrDefaultAsync(x => x.Name == dto.name);
 
-		if (report != null)
+		var result = _reportValidator.CreateValidator(report, user);
+		if (!result.IsSuccess)
 		{
-			throw new ReportAlreadyExistsException(ErrorMessage.ReportAlreadyExist);
+			return new BaseResult<ReportDto>
+			{
+				ErrorCode = result.ErrorCode,
+				ErrorMessage = result.ErrorMessage
+			};
 		}
 
 		report = new Report
@@ -120,7 +128,11 @@ public class ReportService : IReportService
 		var result = _reportValidator.ValidateOnNull(report);
 		if (!result.IsSuccess)
 		{
-			throw new ReportNotFoundException(result.ErrorMessage);
+			return new BaseResult<ReportDto>
+			{
+				ErrorCode = result.ErrorCode,
+				ErrorMessage = result.ErrorMessage
+			};
 		}
 
 		await _reportRepository.DeleteAsync(report!);
@@ -141,7 +153,11 @@ public class ReportService : IReportService
 		var result = _reportValidator.ValidateOnNull(report);
 		if (!result.IsSuccess)
 		{
-			throw new ReportNotFoundException(result.ErrorMessage);
+			return new BaseResult<ReportDto>
+			{
+				ErrorCode = result.ErrorCode,
+				ErrorMessage = result.ErrorMessage
+			};
 		}
 
 		report!.Name = dto.name;

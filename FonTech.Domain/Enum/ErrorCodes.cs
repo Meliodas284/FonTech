@@ -4,7 +4,7 @@ public enum ErrorCodes
 {
 	ReportsNotFound = 0,
 	ReportNotFound = 1,
-	ReportAlreadyExist = 2,
+	ReportAlreadyExists = 2,
 
 	UserNotFound = 11,
 	UserAlreadyExists = 12,
