@@ -97,11 +97,11 @@ namespace FonTech.Application.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Report is already exist.
+        ///   Ищет локализованную строку, похожую на Report is already exists.
         /// </summary>
-        internal static string ReportAlreadyExist {
+        internal static string ReportAlreadyExists {
             get {
-                return ResourceManager.GetString("ReportAlreadyExist", resourceCulture);
+                return ResourceManager.GetString("ReportAlreadyExists", resourceCulture);
             }
         }
         

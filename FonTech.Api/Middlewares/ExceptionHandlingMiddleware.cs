@@ -1,6 +1,5 @@
-﻿using FonTech.Domain.Exceptions;
+﻿using FonTech.Domain.Enum;
 using FonTech.Domain.Result;
-using Microsoft.IdentityModel.Tokens;
 using System.Net;
 using ILogger = Serilog.ILogger;
 
@@ -38,44 +37,18 @@ public class ExceptionHandlingMiddleware
         }
         catch (Exception ex)
         {
-            await HandleExceptionAsync(context, ex);
+            _logger.Error(ex, ex.Message);
+
+            var result = new BaseResult
+            {
+                ErrorCode = (int)ErrorCodes.InternalServerError,
+                ErrorMessage = "An error occurred while processing your request."
+			};
+
+            context.Response.ContentType = "application/json";
+            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+
+            await context.Response.WriteAsJsonAsync(result);
         }
-    }
-
-	/// <summary>
-	/// Обрабатывает исключение
-	/// </summary>
-	/// <param name="context"></param>
-	/// <param name="exception"></param>
-	/// <returns></returns>
-	private async Task HandleExceptionAsync(HttpContext context, Exception exception)
-    {
-        _logger.Error(exception, exception.Message);
-
-        var response = new BaseResult()
-        {
-            ErrorMessage = exception.Message,
-        };
-
-        response.ErrorCode = exception switch
-        {
-            ReportsNotFoundException _ => (int)HttpStatusCode.NotFound,
-            ReportNotFoundException _ => (int)HttpStatusCode.NotFound,
-            ReportAlreadyExistsException _ => (int)HttpStatusCode.BadRequest,
-            UserNotFoundException _ => (int)HttpStatusCode.NotFound,
-            UserAlreadyExistsException _ => (int)HttpStatusCode.BadRequest,
-            WrongPasswordException _ => (int)HttpStatusCode.Unauthorized,
-            PasswordNotEqualsException _ => (int)HttpStatusCode.Unauthorized,
-            InvalidClientRequestException _ => (int)HttpStatusCode.BadRequest,
-            SecurityTokenException _ => (int)HttpStatusCode.Unauthorized,
-            RolesNotFoundException _ => (int)HttpStatusCode.NotFound,
-            RoleAlreadyExistsException _ => (int)HttpStatusCode.BadRequest,
-			_ => (int)HttpStatusCode.InternalServerError
-        };
-
-        context.Response.StatusCode = (int)response.ErrorCode;
-
-        context.Response.ContentType = "application/json";
-        await context.Response.WriteAsJsonAsync(response);
     }
 }
