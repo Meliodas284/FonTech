@@ -150,8 +150,8 @@
     <comment>Role already exists</comment>
   </data>
   <data name="RoleNotFound" xml:space="preserve">
-    <value>Roles not found</value>
-    <comment>Roles not found</comment>
+    <value>Role not found</value>
+    <comment>Role not found</comment>
   </data>
   <data name="RolesNotFound" xml:space="preserve">
     <value>Roles not found</value>
@@ -160,6 +160,10 @@
   <data name="UserAlreadyExists" xml:space="preserve">
     <value>User with this login is already exists</value>
     <comment>User with this login is already exists</comment>
+  </data>
+  <data name="UserAlreadyHasThisRole" xml:space="preserve">
+    <value>User already has this role</value>
+    <comment>User already has this role</comment>
   </data>
   <data name="UserNotFound" xml:space="preserve">
     <value>User is not found</value>

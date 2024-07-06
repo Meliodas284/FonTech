@@ -133,7 +133,7 @@ namespace FonTech.Application.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Roles not found.
+        ///   Ищет локализованную строку, похожую на Role not found.
         /// </summary>
         internal static string RoleNotFound {
             get {
@@ -156,6 +156,15 @@ namespace FonTech.Application.Resources {
         internal static string UserAlreadyExists {
             get {
                 return ResourceManager.GetString("UserAlreadyExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на User already has this role.
+        /// </summary>
+        internal static string UserAlreadyHasThisRole {
+            get {
+                return ResourceManager.GetString("UserAlreadyHasThisRole", resourceCulture);
             }
         }
         

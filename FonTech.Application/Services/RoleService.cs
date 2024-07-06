@@ -1,4 +1,5 @@
-﻿using FonTech.Application.Resources;
+﻿using AutoMapper;
+using FonTech.Application.Resources;
 using FonTech.Domain.Dto.Role;
 using FonTech.Domain.Entity;
 using FonTech.Domain.Enum;
@@ -13,24 +14,74 @@ public class RoleService : IRoleService
 {
 	private readonly IBaseRepository<Role> _roleRepository;
 	private readonly IBaseRepository<User> _userRepository;
+	private readonly IMapper _mapper;
 
 	public RoleService(
 		IBaseRepository<Role> roleRepository, 
-		IBaseRepository<User> userRepository)
+		IBaseRepository<User> userRepository,
+		IMapper mapper)
     {
 		_roleRepository = roleRepository;
 		_userRepository = userRepository;
+		_mapper = mapper;
     }
 
 	/// <inheritdoc />
-	public async Task<BaseResult<Role>> CreateRoleAsync(RoleDto dto)
+	public async Task<BaseResult<UserRoleDto>> AddRoleForUserAsync(UserRoleDto dto)
+	{
+		var user = await _userRepository.GetAll()
+			.Include(x => x.Roles)
+			.FirstOrDefaultAsync(x => x.Login == dto.Login);
+
+		if (user == null)
+		{
+			return new BaseResult<UserRoleDto>
+			{
+				ErrorCode = (int)ErrorCodes.UserNotFound,
+				ErrorMessage = ErrorMessage.UserNotFound
+			};
+		}
+
+		var role = await _roleRepository.GetAll()
+			.FirstOrDefaultAsync(x => x.Name == dto.Role);
+
+		if (role == null)
+		{
+			return new BaseResult<UserRoleDto>
+			{
+				ErrorCode = (int)ErrorCodes.RoleNotFound,
+				ErrorMessage = ErrorMessage.RoleNotFound
+			};
+		}
+
+		var userRoles = user.Roles.Select(x => x.Name).ToArray();
+		if (userRoles.Contains(dto.Role))
+		{
+			return new BaseResult<UserRoleDto>
+			{
+				ErrorCode = (int)ErrorCodes.UserAlreadyHasThisRole,
+				ErrorMessage = ErrorMessage.UserAlreadyHasThisRole
+			};
+		}
+
+		user.Roles.Add(role);
+		await _userRepository.UpdateAsync(user);
+
+		return new BaseResult<UserRoleDto>
+		{
+			Data = dto
+		};
+	}
+
+	/// <inheritdoc />
+	public async Task<BaseResult<RoleDto>> CreateRoleAsync(RoleDto dto)
 	{
 		var role = await _roleRepository.GetAll()
 			.FirstOrDefaultAsync(x => x.Name == dto.Name);
 
 		if (role != null)
 		{
-			return new BaseResult<Role>
+			return new BaseResult<RoleDto>
 			{
 				ErrorCode = (int)ErrorCodes.RoleAlreadyExists,
 				ErrorMessage = ErrorMessage.RoleAlreadyExists
@@ -43,21 +94,21 @@ public class RoleService : IRoleService
 		};
 
 		await _roleRepository.CreateAsync(role);
-		
-		return new BaseResult<Role>
-		{ 
-			Data = role
+
+		return new BaseResult<RoleDto>
+		{
+			Data = dto
 		};
 	}
 
 	/// <inheritdoc />
-	public async Task<BaseResult<Role>> DeleteRoleAsync(long id)
+	public async Task<BaseResult<RoleDto>> DeleteRoleAsync(long id)
 	{
 		var role = await _roleRepository.GetAll().FirstOrDefaultAsync(x => x.Id == id);
 
 		if (role == null)
 		{
-			return new BaseResult<Role>
+			return new BaseResult<RoleDto>
 			{
 				ErrorCode = (int)ErrorCodes.RoleNotFound,
 				ErrorMessage = ErrorMessage.RoleNotFound
@@ -66,54 +117,55 @@ public class RoleService : IRoleService
 
 		await _roleRepository.DeleteAsync(role);
 
-		return new BaseResult<Role> 
+		return new BaseResult<RoleDto> 
 		{ 
-			Data = role 
+			Data = _mapper.Map<RoleDto>(role)
 		};
 	}
 
 	/// <inheritdoc />
-	public async Task<BaseResult<Role>> GetRoleByIdAsync(long id)
+	public async Task<BaseResult<RoleDto>> GetRoleByIdAsync(long id)
 	{
 		var role = await _roleRepository.GetAll().FirstOrDefaultAsync(x => x.Id == id);
 
 		if (role == null)
 		{
-			return new BaseResult<Role>
+			return new BaseResult<RoleDto>
 			{
 				ErrorCode = (int)ErrorCodes.RoleNotFound,
 				ErrorMessage = ErrorMessage.RoleNotFound
 			};
 		}
 
-		return new BaseResult<Role>
+		return new BaseResult<RoleDto>
 		{
-			Data = role
+			Data = _mapper.Map<RoleDto>(role)
 		};
 	}
 
 	/// <inheritdoc />
-	public async Task<CollectionResult<Role>> GetRolesAsync()
+	public async Task<CollectionResult<RoleDto>> GetRolesAsync()
 	{
 		var roles = await _roleRepository.GetAll().ToListAsync();
 
 		if (!roles.Any())
 		{
-			return new CollectionResult<Role>
+			return new CollectionResult<RoleDto>
 			{
 				ErrorCode = (int)ErrorCodes.RolesNotFound,
 				ErrorMessage = ErrorMessage.RolesNotFound
 			};
 		}
 
-		return new CollectionResult<Role>() 
+		return new CollectionResult<RoleDto>
 		{ 
-			Data = roles
+			Data = roles.Select(x => _mapper.Map<RoleDto>(x)),
+			Count = roles.Count
 		};
 	}
 
 	/// <inheritdoc />
-	public async Task<CollectionResult<Role>> GetUserRolesAsync(long userId)
+	public async Task<CollectionResult<RoleDto>> GetUserRolesAsync(long userId)
 	{
 		var user = await _userRepository
 			.GetAll()
@@ -122,7 +174,7 @@ public class RoleService : IRoleService
 
 		if (user == null)
 		{
-			return new CollectionResult<Role>
+			return new CollectionResult<RoleDto>
 			{
 				ErrorCode = (int)ErrorCodes.UserNotFound,
 				ErrorMessage = ErrorMessage.UserNotFound
@@ -131,27 +183,28 @@ public class RoleService : IRoleService
 
 		if (!user.Roles.Any())
 		{
-			return new CollectionResult<Role>
+			return new CollectionResult<RoleDto>
 			{
 				ErrorCode = (int)ErrorCodes.RolesNotFound,
 				ErrorMessage = ErrorMessage.RolesNotFound
 			};
 		}
 
-		return new CollectionResult<Role>
+		return new CollectionResult<RoleDto>
 		{
-			Data = user.Roles
+			Data = user.Roles.Select(x => _mapper.Map<RoleDto>(x)),
+			Count = user.Roles.Count
 		};
 	}
 
 	/// <inheritdoc />
-	public async Task<BaseResult<Role>> UpdateRoleAsync(UpdateRoleDto dto)
+	public async Task<BaseResult<RoleDto>> UpdateRoleAsync(UpdateRoleDto dto)
 	{
 		var role = await _roleRepository.GetAll().FirstOrDefaultAsync(x => x.Id == dto.Id);
 
 		if (role == null)
 		{
-			return new BaseResult<Role>
+			return new BaseResult<RoleDto>
 			{
 				ErrorCode = (int)ErrorCodes.RoleNotFound,
 				ErrorMessage = ErrorMessage.RoleNotFound
@@ -161,9 +214,9 @@ public class RoleService : IRoleService
 		role.Name = dto.Name;
 		await _roleRepository.UpdateAsync(role);
 
-		return new BaseResult<Role>
+		return new BaseResult<RoleDto>
 		{
-			Data = role
+			Data = _mapper.Map<RoleDto>(role)
 		};
 	}
 }

@@ -19,6 +19,7 @@ public class AuthService : IAuthService
 {
 	private readonly IBaseRepository<User> _userRepository;
 	private readonly IBaseRepository<UserToken> _userTokenRepository;
+	private readonly IBaseRepository<Role> _roleRepository;
 	private readonly ITokenService _tokenService;
 	private readonly ILogger _logger;
 	private readonly IMapper _mapper;
@@ -26,12 +27,14 @@ public class AuthService : IAuthService
     public AuthService(
 		IBaseRepository<User> userRepository, 
 		IBaseRepository<UserToken> userTokenRepository,
+		IBaseRepository<Role> roleRepository,
 		ITokenService tokenService,
 		ILogger logger, 
 		IMapper mapper)
     {
 		_userRepository = userRepository;
 		_userTokenRepository = userTokenRepository;
+		_roleRepository = roleRepository;
 		_tokenService = tokenService;
 		_logger = logger;
 		_mapper = mapper;
@@ -41,7 +44,8 @@ public class AuthService : IAuthService
 	public async Task<BaseResult<TokenDto>> LoginAsync(LoginUserDto dto)
 	{
 		var user = await _userRepository.GetAll()
-				.FirstOrDefaultAsync(x => x.Login == dto.Login);
+			.Include(x => x.Roles)
+			.FirstOrDefaultAsync(x => x.Login == dto.Login);
 
 		if (user == null)
 		{
@@ -64,11 +68,9 @@ public class AuthService : IAuthService
 		var userToken = await _userTokenRepository.GetAll()
 			.FirstOrDefaultAsync(x => x.UserId == user.Id);
 
-		var claims = new List<Claim>()
-			{
-				new Claim(ClaimTypes.Name, user.Login),
-				new Claim(ClaimTypes.Role, "User")
-			};
+		var claims = user.Roles.Select(x => new Claim(ClaimTypes.Role, x.Name)).ToList();
+		claims.Add(new Claim(ClaimTypes.Name, user.Login));
+
 		var accessToken = _tokenService.GenerateAccessToken(claims);
 		var refreshToken = _tokenService.GenerateRefreshToken();
 
@@ -127,10 +129,21 @@ public class AuthService : IAuthService
 
 		var hashPassword = HashPassword(dto.Password);
 
+		var role = await _roleRepository.GetAll().FirstOrDefaultAsync(x => x.Name == "User");
+		if (role == null)
+		{
+			return new BaseResult<UserDto>
+			{
+				ErrorCode = (int)ErrorCodes.RoleNotFound,
+				ErrorMessage = ErrorMessage.RoleNotFound
+			};
+		}
+
 		user = new User
 		{
 			Login = dto.Login,
-			Password = hashPassword
+			Password = hashPassword,
+			Roles = new List<Role> { role }
 		};
 
 		await _userRepository.CreateAsync(user);

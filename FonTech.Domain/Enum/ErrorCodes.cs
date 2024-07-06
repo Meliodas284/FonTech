@@ -8,6 +8,7 @@ public enum ErrorCodes
 
 	UserNotFound = 11,
 	UserAlreadyExists = 12,
+	UserAlreadyHasThisRole = 13,
 
 
 	PasswordNotEquals = 21,
