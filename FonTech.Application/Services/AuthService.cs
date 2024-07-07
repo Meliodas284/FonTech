@@ -8,7 +8,6 @@ using FonTech.Domain.Interfaces.Repositories;
 using FonTech.Domain.Interfaces.Services;
 using FonTech.Domain.Result;
 using Microsoft.EntityFrameworkCore;
-using Serilog;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
@@ -17,33 +16,24 @@ namespace FonTech.Application.Services;
 
 public class AuthService : IAuthService
 {
-	private readonly IBaseRepository<User> _userRepository;
-	private readonly IBaseRepository<UserToken> _userTokenRepository;
-	private readonly IBaseRepository<Role> _roleRepository;
+	private readonly IUnitOfWork _unitOfWork;
 	private readonly ITokenService _tokenService;
-	private readonly ILogger _logger;
 	private readonly IMapper _mapper;
 
     public AuthService(
-		IBaseRepository<User> userRepository, 
-		IBaseRepository<UserToken> userTokenRepository,
-		IBaseRepository<Role> roleRepository,
+		IUnitOfWork unitOfWork,
 		ITokenService tokenService,
-		ILogger logger, 
 		IMapper mapper)
     {
-		_userRepository = userRepository;
-		_userTokenRepository = userTokenRepository;
-		_roleRepository = roleRepository;
+		_unitOfWork = unitOfWork;
 		_tokenService = tokenService;
-		_logger = logger;
 		_mapper = mapper;
     }
 
     /// <inheritdoc />
 	public async Task<BaseResult<TokenDto>> LoginAsync(LoginUserDto dto)
 	{
-		var user = await _userRepository.GetAll()
+		var user = await _unitOfWork.Users.GetAll()
 			.Include(x => x.Roles)
 			.FirstOrDefaultAsync(x => x.Login == dto.Login);
 
@@ -65,7 +55,7 @@ public class AuthService : IAuthService
 			};
 		}
 
-		var userToken = await _userTokenRepository.GetAll()
+		var userToken = await _unitOfWork.UserTokens.GetAll()
 			.FirstOrDefaultAsync(x => x.UserId == user.Id);
 
 		var claims = user.Roles.Select(x => new Claim(ClaimTypes.Role, x.Name)).ToList();
@@ -83,15 +73,17 @@ public class AuthService : IAuthService
 				RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7)
 			};
 
-			await _userTokenRepository.CreateAsync(userToken);
+			await _unitOfWork.UserTokens.CreateAsync(userToken);
 		}
 		else
 		{
 			userToken.RefreshToken = refreshToken;
 			userToken.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
 
-			await _userTokenRepository.UpdateAsync(userToken);
+			await _unitOfWork.UserTokens.UpdateAsync(userToken);
 		}
+
+		await _unitOfWork.SaveChangeAsync();
 
 		return new BaseResult<TokenDto>()
 		{
@@ -115,7 +107,7 @@ public class AuthService : IAuthService
 			};
 		}
 
-		var user = await _userRepository.GetAll()
+		var user = await _unitOfWork.Users.GetAll()
 				.FirstOrDefaultAsync(x => x.Login == dto.Login);
 
 		if (user != null)
@@ -129,7 +121,7 @@ public class AuthService : IAuthService
 
 		var hashPassword = HashPassword(dto.Password);
 
-		var role = await _roleRepository.GetAll().FirstOrDefaultAsync(x => x.Name == "User");
+		var role = await _unitOfWork.Roles.GetAll().FirstOrDefaultAsync(x => x.Name == "User");
 		if (role == null)
 		{
 			return new BaseResult<UserDto>
@@ -146,7 +138,8 @@ public class AuthService : IAuthService
 			Roles = new List<Role> { role }
 		};
 
-		await _userRepository.CreateAsync(user);
+		await _unitOfWork.Users.CreateAsync(user);
+		await _unitOfWork.SaveChangeAsync();
 
 		return new BaseResult<UserDto>()
 		{

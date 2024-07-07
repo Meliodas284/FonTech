@@ -6,7 +6,7 @@ public interface IBaseRepository<TEntity>
 
 	Task<TEntity> CreateAsync(TEntity entity);
 
-	Task<TEntity> UpdateAsync(TEntity entity);
+	Task UpdateAsync(TEntity entity);
 
-	Task<TEntity> DeleteAsync(TEntity entity);
+	Task DeleteAsync(TEntity entity);
 }

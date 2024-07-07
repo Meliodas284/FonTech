@@ -12,24 +12,21 @@ namespace FonTech.Application.Services;
 
 public class RoleService : IRoleService
 {
-	private readonly IBaseRepository<Role> _roleRepository;
-	private readonly IBaseRepository<User> _userRepository;
+	private readonly IUnitOfWork _unitOfWork;
 	private readonly IMapper _mapper;
 
 	public RoleService(
-		IBaseRepository<Role> roleRepository, 
-		IBaseRepository<User> userRepository,
+		IUnitOfWork unitOfWork,
 		IMapper mapper)
     {
-		_roleRepository = roleRepository;
-		_userRepository = userRepository;
+		_unitOfWork = unitOfWork;
 		_mapper = mapper;
     }
 
 	/// <inheritdoc />
 	public async Task<BaseResult<UserRoleDto>> AddRoleForUserAsync(UserRoleDto dto)
 	{
-		var user = await _userRepository.GetAll()
+		var user = await _unitOfWork.Users.GetAll()
 			.Include(x => x.Roles)
 			.FirstOrDefaultAsync(x => x.Login == dto.Login);
 
@@ -42,7 +39,7 @@ public class RoleService : IRoleService
 			};
 		}
 
-		var role = await _roleRepository.GetAll()
+		var role = await _unitOfWork.Roles.GetAll()
 			.FirstOrDefaultAsync(x => x.Name == dto.Role);
 
 		if (role == null)
@@ -65,7 +62,8 @@ public class RoleService : IRoleService
 		}
 
 		user.Roles.Add(role);
-		await _userRepository.UpdateAsync(user);
+		await _unitOfWork.Users.UpdateAsync(user);
+		await _unitOfWork.SaveChangeAsync();
 
 		return new BaseResult<UserRoleDto>
 		{
@@ -76,7 +74,7 @@ public class RoleService : IRoleService
 	/// <inheritdoc />
 	public async Task<BaseResult<RoleDto>> CreateRoleAsync(RoleDto dto)
 	{
-		var role = await _roleRepository.GetAll()
+		var role = await _unitOfWork.Roles.GetAll()
 			.FirstOrDefaultAsync(x => x.Name == dto.Name);
 
 		if (role != null)
@@ -93,7 +91,8 @@ public class RoleService : IRoleService
 			Name = dto.Name
 		};
 
-		await _roleRepository.CreateAsync(role);
+		await _unitOfWork.Roles.CreateAsync(role);
+		await _unitOfWork.SaveChangeAsync();
 
 		return new BaseResult<RoleDto>
 		{
@@ -104,7 +103,7 @@ public class RoleService : IRoleService
 	/// <inheritdoc />
 	public async Task<BaseResult<RoleDto>> DeleteRoleAsync(long id)
 	{
-		var role = await _roleRepository.GetAll().FirstOrDefaultAsync(x => x.Id == id);
+		var role = await _unitOfWork.Roles.GetAll().FirstOrDefaultAsync(x => x.Id == id);
 
 		if (role == null)
 		{
@@ -115,7 +114,8 @@ public class RoleService : IRoleService
 			};
 		}
 
-		await _roleRepository.DeleteAsync(role);
+		await _unitOfWork.Roles.DeleteAsync(role);
+		await _unitOfWork.SaveChangeAsync();
 
 		return new BaseResult<RoleDto> 
 		{ 
@@ -126,7 +126,7 @@ public class RoleService : IRoleService
 	/// <inheritdoc />
 	public async Task<BaseResult<RoleDto>> GetRoleByIdAsync(long id)
 	{
-		var role = await _roleRepository.GetAll().FirstOrDefaultAsync(x => x.Id == id);
+		var role = await _unitOfWork.Roles.GetAll().FirstOrDefaultAsync(x => x.Id == id);
 
 		if (role == null)
 		{
@@ -146,7 +146,7 @@ public class RoleService : IRoleService
 	/// <inheritdoc />
 	public async Task<CollectionResult<RoleDto>> GetRolesAsync()
 	{
-		var roles = await _roleRepository.GetAll().ToListAsync();
+		var roles = await _unitOfWork.Roles.GetAll().ToListAsync();
 
 		if (!roles.Any())
 		{
@@ -167,7 +167,7 @@ public class RoleService : IRoleService
 	/// <inheritdoc />
 	public async Task<CollectionResult<RoleDto>> GetUserRolesAsync(long userId)
 	{
-		var user = await _userRepository
+		var user = await _unitOfWork.Users
 			.GetAll()
 			.Include(x => x.Roles)
 			.FirstOrDefaultAsync(x => x.Id == userId);
@@ -200,7 +200,7 @@ public class RoleService : IRoleService
 	/// <inheritdoc />
 	public async Task<BaseResult<RoleDto>> UpdateRoleAsync(UpdateRoleDto dto)
 	{
-		var role = await _roleRepository.GetAll().FirstOrDefaultAsync(x => x.Id == dto.Id);
+		var role = await _unitOfWork.Roles.GetAll().FirstOrDefaultAsync(x => x.Id == dto.Id);
 
 		if (role == null)
 		{
@@ -212,7 +212,8 @@ public class RoleService : IRoleService
 		}
 
 		role.Name = dto.Name;
-		await _roleRepository.UpdateAsync(role);
+		await _unitOfWork.Roles.UpdateAsync(role);
+		await _unitOfWork.SaveChangeAsync();
 
 		return new BaseResult<RoleDto>
 		{

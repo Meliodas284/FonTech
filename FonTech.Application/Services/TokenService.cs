@@ -1,6 +1,5 @@
 ﻿using FonTech.Application.Resources;
 using FonTech.Domain.Dto;
-using FonTech.Domain.Entity;
 using FonTech.Domain.Enum;
 using FonTech.Domain.Interfaces.Repositories;
 using FonTech.Domain.Interfaces.Services;
@@ -19,12 +18,12 @@ namespace FonTech.Application.Services;
 public class TokenService : ITokenService
 {
 	private readonly JwtSettings _jwtSettings;
-	private readonly IBaseRepository<User> _userRepository;
+	private readonly IUnitOfWork _unitOfWork;
 
-    public TokenService(IOptions<JwtSettings> jwtSettings, IBaseRepository<User> userRepository)
+    public TokenService(IOptions<JwtSettings> jwtSettings, IUnitOfWork unitOfWork)
     {
 		_jwtSettings = jwtSettings.Value;
-		_userRepository = userRepository;
+		_unitOfWork = unitOfWork;
     }
 
     public string GenerateAccessToken(IEnumerable<Claim> claims)
@@ -80,7 +79,7 @@ public class TokenService : ITokenService
 	{
 		var claimsPrincipal = GetPrincipalFromExpiredToken(dto.AccessToken);
 		var userName = claimsPrincipal.Identity!.Name;
-		var user = await _userRepository.GetAll()
+		var user = await _unitOfWork.Users.GetAll()
 			.Include(x => x.UserToken)
 			.FirstOrDefaultAsync(x => x.Login == userName);
 
@@ -97,7 +96,8 @@ public class TokenService : ITokenService
 		var newAccessToken = GenerateAccessToken(claimsPrincipal.Claims);
 		var newRefreshToken = GenerateRefreshToken();
 		user.UserToken.RefreshToken = newRefreshToken;
-		await _userRepository.UpdateAsync(user);
+		await _unitOfWork.Users.UpdateAsync(user);
+		await _unitOfWork.SaveChangeAsync();
 
 		return new BaseResult<TokenDto>()
 		{
