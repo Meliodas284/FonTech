@@ -8,7 +8,6 @@ using FonTech.Domain.Interfaces.Services;
 using FonTech.Domain.Interfaces.Validators;
 using FonTech.Domain.Result;
 using Microsoft.EntityFrameworkCore;
-using Serilog;
 
 namespace FonTech.Application.Services;
 
@@ -16,20 +15,17 @@ public class ReportService : IReportService
 {
 	private readonly IBaseRepository<Report> _reportRepository;
     private readonly IBaseRepository<User> _userRepository;
-	private readonly ILogger _logger;
     private readonly IReportValidator _reportValidator;
     private readonly IMapper _mapper;
 
 	public ReportService(
         IBaseRepository<Report> reportRepository,
 		IBaseRepository<User> userRepository,
-		ILogger logger,
         IReportValidator reportValidator,
         IMapper mapper)
     {
         _reportRepository = reportRepository;
         _userRepository = userRepository;
-		_logger = logger;
 		_reportValidator = reportValidator;
         _mapper = mapper;
 	}
