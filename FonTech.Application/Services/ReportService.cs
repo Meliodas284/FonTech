@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using FluentValidation;
+using FonTech.Application.Extensions;
 using FonTech.Application.Resources;
 using FonTech.Domain.Dto.Report;
 using FonTech.Domain.Entity;
@@ -16,17 +18,23 @@ public class ReportService : IReportService
 	private readonly IBaseRepository<Report> _reportRepository;
     private readonly IBaseRepository<User> _userRepository;
     private readonly IReportValidator _reportValidator;
-    private readonly IMapper _mapper;
+	private readonly IValidator<CreateReportDto> _createReportValidator;
+	private readonly IValidator<UpdateReportDto> _updateReportValidator;
+	private readonly IMapper _mapper;
 
 	public ReportService(
         IBaseRepository<Report> reportRepository,
 		IBaseRepository<User> userRepository,
         IReportValidator reportValidator,
-        IMapper mapper)
+		IValidator<CreateReportDto> createReportValidator,
+		IValidator<UpdateReportDto> updateReportValidator,
+		IMapper mapper)
     {
         _reportRepository = reportRepository;
         _userRepository = userRepository;
 		_reportValidator = reportValidator;
+		_createReportValidator = createReportValidator;
+		_updateReportValidator = updateReportValidator;
         _mapper = mapper;
 	}
 
@@ -83,6 +91,16 @@ public class ReportService : IReportService
 	/// <inheritdoc/>
     public async Task<BaseResult<ReportDto>> CreateReportAsync(CreateReportDto dto)
 	{
+		var fluentValidation = _createReportValidator.Validate(dto);
+		if (!fluentValidation.IsValid)
+		{
+			return new BaseResult<ReportDto>
+			{
+				ErrorCode = (int)ErrorCodes.CreateDataIsNotValid,
+				ErrorMessage = fluentValidation.ToFormattedString()
+			};
+		}
+
 		var user = await _userRepository.GetAll()
 				.FirstOrDefaultAsync(x => x.Id == dto.userId);
 
@@ -142,6 +160,16 @@ public class ReportService : IReportService
 	/// <inheritdoc />
 	public async Task<BaseResult<ReportDto>> UpdateReportAsync(UpdateReportDto dto)
 	{
+		var fluentValidation = _updateReportValidator.Validate(dto);
+		if (!fluentValidation.IsValid)
+		{
+			return new BaseResult<ReportDto>
+			{
+				ErrorCode = (int)ErrorCodes.UpdateDataIsNotValid,
+				ErrorMessage = fluentValidation.ToFormattedString()
+			};
+		}
+
 		var report = await _reportRepository
 				.GetAll()
 				.FirstOrDefaultAsync(x => x.Id == dto.id);

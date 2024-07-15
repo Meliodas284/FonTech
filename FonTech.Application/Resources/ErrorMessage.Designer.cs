@@ -88,15 +88,6 @@ namespace FonTech.Application.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Password isn`t equals to confirm password.
-        /// </summary>
-        internal static string PasswordNotEquals {
-            get {
-                return ResourceManager.GetString("PasswordNotEquals", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Ищет локализованную строку, похожую на Report is already exists.
         /// </summary>
         internal static string ReportAlreadyExists {

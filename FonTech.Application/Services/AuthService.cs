@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using FluentValidation;
+using FonTech.Application.Extensions;
 using FonTech.Application.Resources;
 using FonTech.Domain.Dto;
 using FonTech.Domain.Dto.User;
@@ -8,7 +10,6 @@ using FonTech.Domain.Interfaces.Repositories;
 using FonTech.Domain.Interfaces.Services;
 using FonTech.Domain.Result;
 using Microsoft.EntityFrameworkCore;
-using Serilog;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
@@ -21,7 +22,8 @@ public class AuthService : IAuthService
 	private readonly IBaseRepository<UserToken> _userTokenRepository;
 	private readonly IBaseRepository<Role> _roleRepository;
 	private readonly ITokenService _tokenService;
-	private readonly ILogger _logger;
+	private readonly IValidator<RegisterUserDto> _registerUserValidator;
+	private readonly IValidator<LoginUserDto> _loginUserValidator;
 	private readonly IMapper _mapper;
 
     public AuthService(
@@ -29,20 +31,32 @@ public class AuthService : IAuthService
 		IBaseRepository<UserToken> userTokenRepository,
 		IBaseRepository<Role> roleRepository,
 		ITokenService tokenService,
-		ILogger logger, 
+		IValidator<RegisterUserDto> registerUserValidator,
+		IValidator<LoginUserDto> loginUserValidator,
 		IMapper mapper)
     {
 		_userRepository = userRepository;
 		_userTokenRepository = userTokenRepository;
 		_roleRepository = roleRepository;
 		_tokenService = tokenService;
-		_logger = logger;
+		_registerUserValidator = registerUserValidator;
+		_loginUserValidator = loginUserValidator;
 		_mapper = mapper;
     }
 
     /// <inheritdoc />
 	public async Task<BaseResult<TokenDto>> LoginAsync(LoginUserDto dto)
 	{
+		var result = _loginUserValidator.Validate(dto);
+		if (!result.IsValid)
+		{
+			return new BaseResult<TokenDto>
+			{
+				ErrorCode = (int)ErrorCodes.LoginDataIsNotValid,
+				ErrorMessage = result.ToFormattedString()
+			};
+		}
+
 		var user = await _userRepository.GetAll()
 			.Include(x => x.Roles)
 			.FirstOrDefaultAsync(x => x.Login == dto.Login);
@@ -106,12 +120,13 @@ public class AuthService : IAuthService
 	/// <inheritdoc />
 	public async Task<BaseResult<UserDto>> RegisterAsync(RegisterUserDto dto)
 	{
-		if (dto.Password != dto.PasswordConfirm)
+		var result = _registerUserValidator.Validate(dto);
+		if (!result.IsValid)
 		{
 			return new BaseResult<UserDto>
 			{
-				ErrorCode = (int)ErrorCodes.PasswordNotEquals,
-				ErrorMessage = ErrorMessage.PasswordNotEquals
+				ErrorCode = (int)ErrorCodes.RegisterDataIsNotValid,
+				ErrorMessage = result.ToFormattedString()
 			};
 		}
 

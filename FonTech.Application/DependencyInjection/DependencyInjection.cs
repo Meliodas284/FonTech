@@ -21,8 +21,7 @@ public static class DependencyInjection
 
 	private static void InitServices(this IServiceCollection services)
 	{
-		services.AddScoped<IValidator<CreateReportDto>, CreateReportValidator>();
-		services.AddScoped<IValidator<UpdateReportDto>, UpdateReportValidator>();
+		services.AddValidatorsFromAssemblyContaining<CreateReportValidator>();
 		services.AddScoped<IReportValidator, ReportValidator>();
 		
 		services.AddScoped<IReportService, ReportService>();
