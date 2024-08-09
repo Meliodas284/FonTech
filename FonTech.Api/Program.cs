@@ -8,6 +8,7 @@ using FonTech.Api.Middlewares;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection(JwtSettings.DefaultJwtSection));
+builder.Services.Configure<RabbitMqSettings>(builder.Configuration.GetSection(nameof(RabbitMqSettings)));
 
 builder.Host.UseSerilog((context, configuration) =>
 {
