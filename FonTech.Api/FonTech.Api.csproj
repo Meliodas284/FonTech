@@ -20,7 +20,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FonTech.Application\FonTech.Application.csproj" />
+    <ProjectReference Include="..\FonTech.Consumer\FonTech.Consumer.csproj" />
     <ProjectReference Include="..\FonTech.DAL\FonTech.DAL.csproj" />
+    <ProjectReference Include="..\FonTech.Producer\FonTech.Producer.csproj" />
   </ItemGroup>
 
 </Project>

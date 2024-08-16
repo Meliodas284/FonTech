@@ -10,7 +10,7 @@ namespace FonTech.Api.Controllers;
 /// <summary>
 /// Контроллер для модели Report
 /// </summary>
-[Authorize]
+//[Authorize]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/[controller]")]
 [ApiController]

@@ -21,8 +21,12 @@ public class RabbitMqListener : BackgroundService
 		var factory = new ConnectionFactory() { HostName = "localhost" };
 		_connection = factory.CreateConnection();
 		_channel = _connection.CreateModel();
-		_channel.QueueDeclare(_options.QueueName, durable: true, exclusive: true,
-			autoDelete: false, arguments: null);
+		_channel.QueueDeclare(
+			queue: _options.QueueName, 
+			durable: true, 
+			exclusive: false,
+			autoDelete: false, 
+			arguments: null);
 		_logger = logger;
 	}
 
