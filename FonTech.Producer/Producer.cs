@@ -7,7 +7,7 @@ namespace FonTech.Producer;
 
 public class Producer : IMessageProducer
 {
-	public void SendMessage<T>(T message, string routingKey, string? exchsnge = null)
+	public void SendMessage<T>(T message, string routingKey, string? exchange = null)
 	{
 		var factory = new ConnectionFactory() { HostName = "localhost" };
 		var connection = factory.CreateConnection();
@@ -19,6 +19,6 @@ public class Producer : IMessageProducer
 				ReferenceLoopHandling = ReferenceLoopHandling.Ignore
 			});
 		var bytes = Encoding.UTF8.GetBytes(json);
-		channel.BasicPublish(exchsnge, routingKey, body: bytes);
+		channel.BasicPublish(exchange, routingKey, body: bytes);
 	}
 }

@@ -4,6 +4,8 @@ using Serilog;
 using FonTech.Api;
 using FonTech.Domain.Settings;
 using FonTech.Api.Middlewares;
+using FonTech.Producer.DependencyInjection;
+using FonTech.Consumer.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +24,8 @@ builder.Services.AddSwagger();
 
 builder.Services.AddDataAccessLayer(builder.Configuration);
 builder.Services.AddApplication();
+builder.Services.AddProducer();
+builder.Services.AddConsumer();
 
 var app = builder.Build();
 
